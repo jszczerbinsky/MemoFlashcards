@@ -1,12 +1,21 @@
 <template>
-  <div id="container">
-    <div id="overflow-container">
-      <div id="card" ref="card" @click="cardClick()" @mousedown="cardMouseDown" @touchstart="cardTouchDown">
-        <header v-show="shown === true" className="card-text" ref="cardtitle"></header>
-        <div v-show="shown === true" id="img-container"></div>
-        <div v-show="shown === false" id="reverse">?</div>
-        <p className="card-text" ref="carddesc"> </p>
+  <div>
+    <div id="container">
+      <div id="overflow-container">
+        <div id="card-back" className="card"></div>
+        <div id="card-front" className="card" ref="card" @click="cardClick()" @mousedown="cardMouseDown" @touchstart="cardTouchDown">
+          <header v-show="shown === true" className="card-text" ref="cardtitle"></header>
+          <div v-show="shown === true" id="img-container"></div>
+          <div v-show="shown === false" id="reverse">?</div>
+          <p className="card-text" ref="carddesc"> </p>
+        </div>
       </div>
+    </div>
+    <div id="button-container">
+      <button id="hide1day-btn" @click="() => {hideFor(1)}">Hide for 1 day</button>
+      <button id="hide3day-btn" @click="() => {hideFor(3)}">Hide for 3 days</button>
+      <button id="learned-btn" @click="() => {getCurrentCard().learned = true; nextCard()}">Mark as learned</button>
+      <button id="exit-btn" @click="() => {$parent.reviewDone()}">Exit</button>
     </div>
   </div>
 </template>
@@ -17,6 +26,7 @@ export default {
   name: 'CardView',
   props: ['cardlist'],
   mounted () {
+    this.shuffleCards();
     this.nextCard();
   },
   data() {
@@ -29,17 +39,41 @@ export default {
     }
   },
   methods: {
-    nextCard() {
-      this.currentCard++;
+    hideFor(days){
+      let now = new Date(Date.now());
+      now.setDate(now.getDate()+days);
+      this.getCurrentCard().hideUntil = now.toISOString();
+      this.nextCard();
+    },
+    shuffleCards(){
+      this.$props.cardlist.sort(() => Math.random() - 0.5);
+    },
+    getCurrentCard() {
+      return this.$props.cardlist[this.currentCard];
+    },
+    isHidden(card) {
+      const date = new Date(card.hideUntil);
+      const now = new Date(Date.now());
 
-      if(this.currentCard === this.$props.cardlist.length)
-        this.$parent.reviewDone();
-      else
-      {
-        this.$refs.cardtitle.textContent = this.$props.cardlist[this.currentCard].title;
-        this.$refs.carddesc.textContent = this.$props.cardlist[this.currentCard].desc;
-        this.shown = false;
-      }
+      return now < date || card.learned;
+    },
+    nextCard() {
+      if(this.$props.cardlist.find(x => !this.isHidden(x)) === undefined)
+        return this.$parent.reviewDone();
+      
+      do{
+        this.currentCard++;
+
+        if(this.currentCard === this.$props.cardlist.length)
+        {
+          this.currentCard = 0;
+          this.shuffleCards();
+        }
+      } while(this.isHidden(this.getCurrentCard()));
+      
+      this.$refs.cardtitle.textContent = this.getCurrentCard().title;
+      this.$refs.carddesc.textContent = this.getCurrentCard().desc;
+      this.shown = false;
     },
     cardClick() {
       if(!this.dragging)
@@ -58,7 +92,7 @@ export default {
 
       let distance = (this.getScreenCenter()-150-x);
       if(Math.abs(distance) < 1) distance = 1;
-      this.$refs.card.style.opacity = 1/(Math.abs(distance)/30);
+      this.$refs.card.style.opacity = 1/(Math.abs(distance)/50);
 
       if(Math.abs(distance) > this.getScreenCenter()/2) {
         if(distance > 0) this.answer = "left";
@@ -77,6 +111,8 @@ export default {
       this.handleMovement(touch.pageX);
     },
     handleDown() {
+      this.$refs.card.classList.remove('fadein');
+
       this.$el.addEventListener('mousemove', this.mouseMove);
       this.$el.addEventListener('touchmove', this.touchMove);
       this.$el.addEventListener('mouseup', this.cardMouseUp);
@@ -100,10 +136,11 @@ export default {
       if(this.answer !== null)
       {
         if(this.answer === "left")
-          this.$props.cardlist[this.currentCard].wrong++;
+          this.getCurrentCard().wrong++;
         else
-          this.$props.cardlist[this.currentCard].correct++;
+          this.getCurrentCard().correct++;
 
+        this.$refs.card.classList.add('fadein');
         this.nextCard();
       }     
       this.baseXPos = this.getScreenCenter();
@@ -116,9 +153,14 @@ export default {
 </script>
 
 <style scoped>
+*{
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
 #container {
   width: 100%;
-  height: 400px;
+  height: 350px;
 }
 #overflow-container{
   position: absolute;
@@ -127,7 +169,7 @@ export default {
   overflow: hidden;
   left: 0px;
 }
-#card {
+.card {
   position: absolute;
   width: 300px;
   height: 350px;
@@ -135,26 +177,74 @@ export default {
   border-radius: 10px 2px 10px 2px;
   left: calc(50% - 150px);
   overflow: hidden;
-  -webkit-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
   background-color: #666;
   font-size: 22px;
 }
-#card .card-text{
+#card-front .card-text{
   padding: 5px;
   height: 100px;
   line-height: 50px;
   margin: 0px;
 }
-#card #img-container {
+#card-front #img-container {
   height: calc(100% - 220px);
 }
-#card #reverse {
+#card-front #reverse {
   height: 240px;
   line-height: 240px;
   font-size: 120px;
 }
-#card p {
+#card-back {
+  background: #444;
+}
+.fadein {
+  animation: 1s card-fadein;
+}
+@keyframes card-fadein {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 100%;
+  }
+}
+#button-container {
+  width: 300px;
+  height: 120px;
+  grid-template-columns: 150px 150px;
+  grid-template-rows: 60px 60px;
+  grid-column-gap: 5px;
+  grid-row-gap: 5px;
+  display: grid;
+  margin-top: 20px;
+  margin-left: calc(50% - 150px);
+}
+button:active {
+  border: 1px solid black;
+}
+button {
+  border: 1px solid rgba(0,0,0,0);
+  align-items:center;
+  justify-content:center;
+  font-size: 17px;
+  border-radius: 2px;
+}
+#hide3day-btn:active, #hide1day-btn:active{
+  background: #98a621;
+}
+#hide3day-btn, #hide1day-btn{
+  background: #7c871b;
+}
+#learned-btn {
+ background: #29871b;
+}
+#learned-btn:active {
+ background: #33a322;
+}
+#exit-btn:active {
+  background: #a62121;
+}
+#exit-btn {
+  background: #941c1c;
 }
 </style>

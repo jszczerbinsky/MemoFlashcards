@@ -1,5 +1,4 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
   <CardView :cardlist="cardlist" />
 </template>
 
@@ -11,9 +10,9 @@ export default {
   data() {
     return {
       cardlist: [
-        {title: "card 1", desc: "desc 1", correct: 0, wrong: 0},
-        {title: "card 2", desc: "desc 2", correct: 0, wrong: 0},
-        {title: "card 3", desc: "desc 3", correct: 0, wrong: 0},
+        {title: "card 1", desc: "desc 1", correct: 0, wrong: 0, hideUntil: new Date(0).toISOString(), learned: false},
+        {title: "card 2", desc: "desc 2", correct: 0, wrong: 0, hideUntil: new Date(0).toISOString(), learned: false},
+        {title: "card 3", desc: "desc 3", correct: 0, wrong: 0, hideUntil: new Date(0).toISOString(), learned: false},
       ]
     }
   },
@@ -31,7 +30,7 @@ export default {
 <style>
 body{
   background-color: #444;
-
+  padding-top: 100px;
 }
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
