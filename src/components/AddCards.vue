@@ -1,15 +1,15 @@
 <template>
   <div id="container">
-    <input v-model="visible" type="textbox" placeholder="Visible side" />
-    <input v-model="invisible" type="textbox" placeholder="Invisible side" />
+    <input ref="visibleinput" v-model="visible" type="textbox" placeholder="Visible side" v-on:keyup.enter="onEnterVisible" />
+    <input ref="invisibleinput" v-model="invisible" type="textbox" placeholder="Invisible side"  v-on:keyup.enter="onEnterInvisible" />
     <div class="main-button-container">
       <button id="exit-btn" class="btn red-btn" @click="() => {$parent.action='menu'}">Exit</button>
       <button id="add-btn" class="btn green-btn" @click="() => {pushNewCard()}">Add</button>
     </div>
     <div id="cardlist">
       <div v-for="(card, index) in $parent.getSelectedSet().cardlist" v-bind:key="card.name" class="card wnd" @click="() => selectedIndex = index">
-        <header class="bold">{{ card.invisible }}</header>
-        <header :class="{nodisplay: (selectedIndex != index)}">{{ card.visible }}</header>
+        <header class="bold">{{ card.visible }}</header>
+        <header :class="{nodisplay: (selectedIndex != index)}">{{ card.invisible }}</header>
         <div :class="{nodisplay: (selectedIndex != index)}" class="button-container">
           <button className="btn yellow-btn" @click="() => {editVisible(index)}">Edit visible</button>
           <button className="btn yellow-btn" @click="() => {editInvisible(index)}">Edit invisible</button>
@@ -23,8 +23,8 @@
 <script>
 
 const cardTemplate = {
-  correct: 0,
-  wrong: 0,
+  correctStreak: 0,
+  level: 1,
   hideUntil: new Date(0),
   learned: false
 }
@@ -73,6 +73,15 @@ export default {
         this.$parent.getSelectedSet().cardlist.push(card);
         this.$parent.syncData();
       }
+      this.invisible = "";
+      this.visible = "";
+      this.$refs.visibleinput.focus();
+    },
+    onEnterVisible() {
+      this.$refs.invisibleinput.focus();
+    },
+    onEnterInvisible() {
+      this.pushNewCard();
     }
   }
 }

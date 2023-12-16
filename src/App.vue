@@ -35,6 +35,12 @@ export default {
     }
   },
   methods: {
+    isHidden(card) {
+      const date = new Date(card.hideUntil);
+      const now = new Date(Date.now());
+
+      return now < date || card.learned;
+    },
     pushEmptySet() {
       this.appdata.sets.push(JSON.parse(JSON.stringify(setTemplate)));
       this.syncData();

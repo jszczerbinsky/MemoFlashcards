@@ -6,6 +6,8 @@
         <header>{{ set.name }}</header>
         <img @click="() => {editName(index)}" src="../assets/edit.svg" />
       </div>
+      <p>Cards to review today: {{ set.cardlist.filter(x => !isHidden(x)).length || '0' }}</p>
+      <p>Total cards: {{ set.cardlist.length || '0' }}</p>
       <div className="button-container">
         <button className="btn yellow-btn" @click="() => {editCards(index)}">Edit cards</button>
         <button className="btn red-btn" @click="() => {deleteSet(index)}">Delete</button>
@@ -27,6 +29,9 @@ export default {
     }
   },
   methods: {
+    isHidden(card) {
+      return this.$parent.isHidden(card);
+    },
     editCards(i) {
       this.$parent.selectedSet = i;
       this.$parent.action = 'edit';
@@ -79,6 +84,10 @@ export default {
 }
 .set-container {
   margin-top: 20px;
+}
+.set-container p {
+  text-align: left;
+  margin-left: 15px;
 }
 .button-container {
   padding: 5px;

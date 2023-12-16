@@ -14,8 +14,6 @@
       </div>
     </div>
     <div id="button-container">
-      <button className="btn yellow-btn" @click="() => {hideFor(1)}">Hide for 1 day</button>
-      <button className="btn yellow-btn" @click="() => {hideFor(3)}">Hide for 3 days</button>
       <button className="btn green-btn" @click="() => {getCurrentCard().learned = true; nextCard()}">Mark as learned</button>
       <button className="btn red-btn" @click="() => {$parent.action='menu'}">Exit</button>
     </div>
@@ -47,12 +45,6 @@ export default {
     onEnter() {
       this.flipped = !this.flipped;
     },
-    hideFor(days){
-      let now = new Date(Date.now());
-      now.setDate(now.getDate()+days);
-      this.getCurrentCard().hideUntil = now.toISOString();
-      this.nextCard();
-    },
     shuffleCards(){
       this.$parent.getSelectedSet().cardlist.sort(() => Math.random() - 0.5);
     },
@@ -60,10 +52,7 @@ export default {
       return this.$parent.getSelectedSet().cardlist[this.currentCard];
     },
     isHidden(card) {
-      const date = new Date(card.hideUntil);
-      const now = new Date(Date.now());
-
-      return now < date || card.learned;
+      return this.$parent.isHidden(card);
     },
     nextCard() {
       this.flipped = false;
@@ -137,6 +126,14 @@ export default {
       this.baseXPos = touch.pageX;
       this.handleDown();
     },
+    cardAdvance() {
+      let now = new Date(Date.now());
+      now.setDate(now.getDate()+this.getCurrentCard().level);
+      this.getCurrentCard().hideUntil = now.toISOString();
+      this.getCurrentCard().correctStreak = 0;          
+      this.getCurrentCard().level++;
+
+    },
     cardMouseUp() {
       this.$el.removeEventListener('mousemove', this.mouseMove);
       this.$el.removeEventListener('touchmove', this.touchMove);
@@ -144,10 +141,19 @@ export default {
       
       if(this.answer !== null)
       {
+        const card = this.getCurrentCard();
+
         if(this.answer === "left")
-          this.getCurrentCard().wrong++;
+        {
+          card.level = 1;
+          card.correctStreak = 0;          
+        }
         else
-          this.getCurrentCard().correct++;
+        {
+          card.correctStreak++;
+          if(card.correctStreak >= 3)
+            this.cardAdvance();
+        }
 
         this.$refs.overflowcontainer.classList.add('fadein');
         this.nextCard();
@@ -216,9 +222,8 @@ export default {
   width: 300px;
   height: 120px;
   grid-template-columns: 150px 150px;
-  grid-template-rows: 60px 60px;
+  grid-template-rows: 60px;
   grid-column-gap: 5px;
-  grid-row-gap: 5px;
   display: grid;
   margin-top: 20px;
   margin-left: calc(50% - 150px);
