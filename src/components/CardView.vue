@@ -2,13 +2,13 @@
   <div>
     <div id="container">
       <div id="overflow-container">
-        <div id="card-back" className="card"></div>
-        <div id="card-front" className="card" ref="card" @click="cardClick()" @mousedown="cardMouseDown" @touchstart="cardTouchDown">
-          <header v-show="shown === true" className="card-text" ref="cardinvisible"></header>
-          <div v-show="shown === true" id="img-container">MemoFlashcards</div>
-          <div v-show="shown === false" id="reverse">?</div>
-          <p className="card-text" ref="cardvisible"> </p>
-        </div>
+        <Transition name="flip" @enter="onEnter">
+          <div v-bind:key="flipping" id="card" ref="card" @click="cardClick()" @mousedown="cardMouseDown" @touchstart="cardTouchDown">
+              <p>
+                {{ flipped ? backText : frontText}}
+              </p>
+          </div>
+        </Transition>
       </div>
     </div>
     <div id="button-container">
@@ -34,10 +34,17 @@ export default {
       answer: null,
       currentCard: -1,
       dragging: false,
-      baseXPos: 0
+      baseXPos: 0,
+      frontText: "",
+      backText: "",
+      flipping: false,
+      flipped: false
     }
   },
   methods: {
+    onEnter() {
+      this.flipped = !this.flipped;
+    },
     hideFor(days){
       let now = new Date(Date.now());
       now.setDate(now.getDate()+days);
@@ -57,6 +64,8 @@ export default {
       return now < date || card.learned;
     },
     nextCard() {
+      this.flipped = false;
+
       this.$parent.syncData();
 
       if(this.$parent.getSelectedSet().cardlist.find(x => !this.isHidden(x)) === undefined)
@@ -72,15 +81,13 @@ export default {
         }
       } while(this.isHidden(this.getCurrentCard()));
       
-      this.$refs.cardinvisible.textContent = this.getCurrentCard().invisible;
-      this.$refs.cardvisible.textContent = this.getCurrentCard().visible;
+      this.backText = this.getCurrentCard().invisible;
+      this.frontText = this.getCurrentCard().visible;
       this.shown = false;
     },
     cardClick() {
       if(!this.dragging)
-      {
-        if(!this.shown) this.shown = true;
-      }
+        this.flipping = !this.flipping;
     },
     getScreenCenter(){
       return window.innerWidth/2;
@@ -169,7 +176,7 @@ export default {
   overflow: hidden;
   left: 0px;
 }
-.card {
+#card {
   position: absolute;
   width: 300px;
   height: 350px;
@@ -179,31 +186,9 @@ export default {
   overflow: hidden;
   background-color: #666;
   font-size: 22px;
-}
-#card-front .card-text{
-  padding: 5px;
-  height: 100px;
-  margin: 0px;
   display: flex;
   justify-content: center;
   align-items: center;
-}
-#card-front #img-container {
-  height: calc(100% - 220px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-family: 'Rubik Doodle Shadow', sans-serif;
-  font-size: 10px;
-  transform: rotate(40deg);
-}
-#card-front #reverse {
-  height: 240px;
-  line-height: 240px;
-  font-size: 120px;
-}
-#card-back {
-  background: #444;
 }
 .fadein {
   animation: 1s card-fadein;
@@ -227,5 +212,12 @@ export default {
   margin-top: 20px;
   margin-left: calc(50% - 150px);
 }
-
+.flip-enter-active, .flip-leave-active {
+  transition: all 0.3s ease;
+}
+.flip-enter-from,
+.flip-leave-to {
+  transform: rotateY(180deg);
+  opacity: 0;
+}
 </style>
