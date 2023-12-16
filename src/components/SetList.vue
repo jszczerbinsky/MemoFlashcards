@@ -1,7 +1,7 @@
 <template>
   <div id="container">
     <button className="btn green-btn" id="create-btn" @click="() => {this.$parent.pushEmptySet()}">Create new set</button>
-    <div className="set-container" v-for="(set, index) in $parent.appdata.sets" v-bind:key="set.name">
+    <div className="set-container wnd" v-for="(set, index) in $parent.appdata.sets" v-bind:key="set.name">
       <div className="header-bar">
         <header>{{ set.name }}</header>
         <img @click="() => {editName(index)}" src="../assets/edit.svg" />
@@ -78,7 +78,6 @@ export default {
   padding: 10px;
 }
 .set-container {
-  border: 2px solid black;
   margin-top: 20px;
 }
 .button-container {

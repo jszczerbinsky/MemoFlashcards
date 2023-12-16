@@ -7,10 +7,10 @@
       <button id="add-btn" class="btn green-btn" @click="() => {pushNewCard()}">Add</button>
     </div>
     <div id="cardlist">
-      <div v-for="(card, index) in $parent.getSelectedSet().cardlist" v-bind:key="card.name" class="card">
-        <header>{{ card.invisible }}</header>
-        <header>{{ card.visible }}</header>
-        <div className="button-container">
+      <div v-for="(card, index) in $parent.getSelectedSet().cardlist" v-bind:key="card.name" class="card wnd" @click="() => selectedIndex = index">
+        <header class="bold">{{ card.invisible }}</header>
+        <header :class="{nodisplay: (selectedIndex != index)}">{{ card.visible }}</header>
+        <div :class="{nodisplay: (selectedIndex != index)}" class="button-container">
           <button className="btn yellow-btn" @click="() => {editVisible(index)}">Edit visible</button>
           <button className="btn yellow-btn" @click="() => {editInvisible(index)}">Edit invisible</button>
           <button className="btn red-btn delete-btn" @click="() => {deleteCard(index)}">Delete</button>
@@ -36,7 +36,8 @@ export default {
   data() {
     return {
       invisible: "",
-      visible: ""
+      visible: "",
+      selectedIndex: 0
     }
   },
   methods: {
@@ -90,7 +91,6 @@ input {
   height: 40px;
 }
 .card {
-  border: 1px solid black;
   margin-bottom: 10px;
 }
 .button-container {
@@ -114,5 +114,11 @@ input {
   grid-column-gap: 5px;
   grid-row-gap: 5px;
   display: grid;
+}
+.nodisplay {
+  display: none;
+}
+.bold {
+  font-weight: bold;
 }
 </style>

@@ -1,10 +1,12 @@
 <template>
   <div>
     <div id="container">
-      <div id="overflow-container">
+      <div id="overflow-container" ref="overflowcontainer">
         <Transition name="flip" @enter="onEnter">
-          <div v-bind:key="flipping" id="card" ref="card" @click="cardClick()" @mousedown="cardMouseDown" @touchstart="cardTouchDown">
-              <p>
+          <div :class="{cardbgback: flipped, cardbgfront: !flipped}" v-bind:key="flipping" id="card" ref="card" @click="cardClick()" @mousedown="cardMouseDown" @touchstart="cardTouchDown">
+            <p class="left lr">I don't remember</p>  
+            <p class="right lr">I remember</p>  
+            <p id="content">
                 {{ flipped ? backText : frontText}}
               </p>
           </div>
@@ -118,7 +120,7 @@ export default {
       this.handleMovement(touch.pageX);
     },
     handleDown() {
-      this.$refs.card.classList.remove('fadein');
+      this.$refs.overflowcontainer.classList.remove('fadein');
 
       this.$el.addEventListener('mousemove', this.mouseMove);
       this.$el.addEventListener('touchmove', this.touchMove);
@@ -147,7 +149,7 @@ export default {
         else
           this.getCurrentCard().correct++;
 
-        this.$refs.card.classList.add('fadein');
+        this.$refs.overflowcontainer.classList.add('fadein');
         this.nextCard();
       }     
       this.baseXPos = this.getScreenCenter();
@@ -176,6 +178,12 @@ export default {
   overflow: hidden;
   left: 0px;
 }
+.cardbgfront {
+  background-image: url("../assets/bg1.png");
+}
+.cardbgback {
+  background-image: url("../assets/bg2.png");
+}
 #card {
   position: absolute;
   width: 300px;
@@ -184,11 +192,14 @@ export default {
   border-radius: 10px 2px 10px 2px;
   left: calc(50% - 150px);
   overflow: hidden;
-  background-color: #666;
+  background-size: 600px;
   font-size: 22px;
   display: flex;
   justify-content: center;
   align-items: center;
+}
+#card #content {
+  font-weight: bold;
 }
 .fadein {
   animation: 1s card-fadein;
@@ -219,5 +230,16 @@ export default {
 .flip-leave-to {
   transform: rotateY(180deg);
   opacity: 0;
+}
+.lr {
+  font-size: 12px;
+  position: absolute;
+  top: 0px;
+}
+.left {
+  left: 10px;  
+}
+.right {
+  right: 10px;
 }
 </style>

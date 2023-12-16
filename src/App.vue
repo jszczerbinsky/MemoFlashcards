@@ -65,7 +65,10 @@ export default {
   font-family: 'Poppins', sans-serif;
 }
 body{
-  background-color: #444;
+  background-color: rgb(68, 68, 68); 
+  background-image: linear-gradient(30deg, rgb(78, 78, 78) 12%, transparent 12.5%, transparent 87%, rgb(78, 78, 78) 87.5%, rgb(78, 78, 78)), linear-gradient(150deg, rgb(78, 78, 78) 12%, transparent 12.5%, transparent 87%, rgb(78, 78, 78) 87.5%, rgb(78, 78, 78)), linear-gradient(30deg, rgb(78, 78, 78) 12%, transparent 12.5%, transparent 87%, rgb(78, 78, 78) 87.5%, rgb(78, 78, 78)), linear-gradient(150deg, rgb(78, 78, 78) 12%, transparent 12.5%, transparent 87%, rgb(78, 78, 78) 87.5%, rgb(78, 78, 78)), linear-gradient(60deg, rgba(78, 78, 78, 0.467) 25%, transparent 25.5%, transparent 75%, rgba(78, 78, 78, 0.467) 75%, rgba(78, 78, 78, 0.467)), linear-gradient(60deg, rgba(78, 78, 78, 0.467) 25%, transparent 25.5%, transparent 75%, rgba(78, 78, 78, 0.467) 75%, rgba(78, 78, 78, 0.467)); 
+  background-size: 80px 140px; 
+  background-position: 0px 0px, 0px 0px, 40px 70px, 40px 70px, 0px 0px, 40px 70px;
 }
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
@@ -102,5 +105,9 @@ body{
   justify-content:center;
   font-size: 17px;
   border-radius: 2px;
+}
+.wnd {
+  background-color: #444;
+  border: 2px solid black;
 }
 </style>
