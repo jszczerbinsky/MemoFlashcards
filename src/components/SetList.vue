@@ -1,0 +1,95 @@
+<template>
+  <div id="container">
+    <button className="green-btn" id="create-btn" @click="() => {this.$parent.pushEmptySet()}">Create new set</button>
+    <div className="set-container" v-for="(set, index) in $parent.appdata.sets" v-bind:key="set.name">
+      <div className="header-bar">
+        <header>{{ set.name }}</header>
+        <img @click="() => {editName(index)}" src="../assets/edit.svg" />
+      </div>
+      <div className="button-container">
+        <button className="yellow-btn">Edit cards</button>
+        <button className="red-btn" @click="() => {deleteSet(index)}">Delete</button>
+        <button className="review-btn green-btn" @click="() => {reviewSet(index)}">Review</button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+
+export default {
+  name: 'SetList',
+  mounted () {
+  },
+  data() {
+    return {
+      renaming: false
+    }
+  },
+  methods: {
+    editName(i) {
+      const res = prompt("Change name", this.$parent.appdata.sets[i].name);
+      if(res !== null)
+      {
+        this.$parent.appdata.sets[i].name = res;
+        this.$parent.syncData();
+      }
+    },
+    reviewSet(i) {
+      this.$parent.selectedSet = i;
+      this.$parent.action = 'review';
+    },
+    deleteSet(i) {
+      this.$parent.appdata.sets.splice(i, 1);
+      this.$parent.syncData();
+    }
+  }
+}
+</script>
+
+<style scoped>
+#container{
+  width: 300px;
+  margin-left: calc(50% - 150px);
+}
+.header-bar img {
+  width: 20px;
+  height: 20px;
+  display: inline-block;
+}
+.header-bar header {
+  width: calc(100% - 20px);
+  margin: 0px;
+  display: inline-block;
+  font-size: 20px;
+}
+.header-bar{
+  padding: 10px;
+}
+.set-container {
+  border: 2px solid black;
+  margin-top: 20px;
+}
+.button-container {
+  padding: 5px;
+  grid-template-columns: 140px 140px;
+  grid-template-rows: 60px 60px;
+  grid-column-gap: 5px;
+  grid-row-gap: 5px;
+  grid-template-areas: 
+    ". ."
+    "bottom bottom"; 
+  display: grid;
+}
+.button-container button {
+  font-size: 17px;
+}
+.review-btn {
+  grid-area: bottom;
+}
+#create-btn {
+  height: 60px;
+  width: 300px;
+  font-size: 17px;
+}
+</style>

@@ -12,10 +12,10 @@
       </div>
     </div>
     <div id="button-container">
-      <button id="hide1day-btn" @click="() => {hideFor(1)}">Hide for 1 day</button>
-      <button id="hide3day-btn" @click="() => {hideFor(3)}">Hide for 3 days</button>
-      <button id="learned-btn" @click="() => {getCurrentCard().learned = true; nextCard()}">Mark as learned</button>
-      <button id="exit-btn" @click="() => {$parent.reviewDone()}">Exit</button>
+      <button className="yellow-btn" @click="() => {hideFor(1)}">Hide for 1 day</button>
+      <button className="yellow-btn" @click="() => {hideFor(3)}">Hide for 3 days</button>
+      <button className="green-btn" @click="() => {getCurrentCard().learned = true; nextCard()}">Mark as learned</button>
+      <button className="red-btn" @click="() => {$parent.action='menu'}">Exit</button>
     </div>
   </div>
 </template>
@@ -24,7 +24,6 @@
 
 export default {
   name: 'CardView',
-  props: ['cardlist'],
   mounted () {
     this.shuffleCards();
     this.nextCard();
@@ -46,10 +45,10 @@ export default {
       this.nextCard();
     },
     shuffleCards(){
-      this.$props.cardlist.sort(() => Math.random() - 0.5);
+      this.$parent.getSelectedSet().cardlist.sort(() => Math.random() - 0.5);
     },
     getCurrentCard() {
-      return this.$props.cardlist[this.currentCard];
+      return this.$parent.getSelectedSet().cardlist[this.currentCard];
     },
     isHidden(card) {
       const date = new Date(card.hideUntil);
@@ -58,13 +57,15 @@ export default {
       return now < date || card.learned;
     },
     nextCard() {
-      if(this.$props.cardlist.find(x => !this.isHidden(x)) === undefined)
-        return this.$parent.reviewDone();
+      this.$parent.syncData();
+      
+      if(this.$parent.getSelectedSet().cardlist.find(x => !this.isHidden(x)) === undefined)
+        return this.$parent.action='menu';
       
       do{
         this.currentCard++;
 
-        if(this.currentCard === this.$props.cardlist.length)
+        if(this.currentCard === this.$parent.getSelectedSet().cardlist.length)
         {
           this.currentCard = 0;
           this.shuffleCards();
@@ -78,8 +79,7 @@ export default {
     cardClick() {
       if(!this.dragging)
       {
-      if(!this.shown) this.shown = true;
-      console.log("click")
+        if(!this.shown) this.shown = true;
       }
     },
     getScreenCenter(){
@@ -228,23 +228,5 @@ button {
   justify-content:center;
   font-size: 17px;
   border-radius: 2px;
-}
-#hide3day-btn:active, #hide1day-btn:active{
-  background: #98a621;
-}
-#hide3day-btn, #hide1day-btn{
-  background: #7c871b;
-}
-#learned-btn {
- background: #29871b;
-}
-#learned-btn:active {
- background: #33a322;
-}
-#exit-btn:active {
-  background: #a62121;
-}
-#exit-btn {
-  background: #941c1c;
 }
 </style>
