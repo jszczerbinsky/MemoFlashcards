@@ -1,5 +1,6 @@
 <template>
-  <AddCards v-if="action === 'add'" />
+  <div id="logo">MemoFlashcards</div>
+  <AddCards v-if="action === 'edit'" />
   <SetList v-if="action === 'menu'" />
   <CardView v-if="action === 'review'" />
 </template>
@@ -54,9 +55,17 @@ export default {
 </script>
 
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&family=Rubik+Doodle+Shadow&display=swap');
+#logo {
+  font-family: 'Rubik Doodle Shadow', sans-serif;
+  font-size: 32px;
+  margin-bottom: 30px;
+}
+* {
+  font-family: 'Poppins', sans-serif;
+}
 body{
   background-color: #444;
-  padding-top: 100px;
 }
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
@@ -83,5 +92,15 @@ body{
 }
 .red-btn {
   background: #941c1c;
+}
+.btn:active {
+  border: 1px solid black;
+}
+.btn {
+  border: 1px solid rgba(0,0,0,0);
+  align-items:center;
+  justify-content:center;
+  font-size: 17px;
+  border-radius: 2px;
 }
 </style>

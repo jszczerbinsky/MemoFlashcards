@@ -4,18 +4,18 @@
       <div id="overflow-container">
         <div id="card-back" className="card"></div>
         <div id="card-front" className="card" ref="card" @click="cardClick()" @mousedown="cardMouseDown" @touchstart="cardTouchDown">
-          <header v-show="shown === true" className="card-text" ref="cardtitle"></header>
-          <div v-show="shown === true" id="img-container"></div>
+          <header v-show="shown === true" className="card-text" ref="cardinvisible"></header>
+          <div v-show="shown === true" id="img-container">MemoFlashcards</div>
           <div v-show="shown === false" id="reverse">?</div>
-          <p className="card-text" ref="carddesc"> </p>
+          <p className="card-text" ref="cardvisible"> </p>
         </div>
       </div>
     </div>
     <div id="button-container">
-      <button className="yellow-btn" @click="() => {hideFor(1)}">Hide for 1 day</button>
-      <button className="yellow-btn" @click="() => {hideFor(3)}">Hide for 3 days</button>
-      <button className="green-btn" @click="() => {getCurrentCard().learned = true; nextCard()}">Mark as learned</button>
-      <button className="red-btn" @click="() => {$parent.action='menu'}">Exit</button>
+      <button className="btn yellow-btn" @click="() => {hideFor(1)}">Hide for 1 day</button>
+      <button className="btn yellow-btn" @click="() => {hideFor(3)}">Hide for 3 days</button>
+      <button className="btn green-btn" @click="() => {getCurrentCard().learned = true; nextCard()}">Mark as learned</button>
+      <button className="btn red-btn" @click="() => {$parent.action='menu'}">Exit</button>
     </div>
   </div>
 </template>
@@ -58,7 +58,7 @@ export default {
     },
     nextCard() {
       this.$parent.syncData();
-      
+
       if(this.$parent.getSelectedSet().cardlist.find(x => !this.isHidden(x)) === undefined)
         return this.$parent.action='menu';
       
@@ -72,8 +72,8 @@ export default {
         }
       } while(this.isHidden(this.getCurrentCard()));
       
-      this.$refs.cardtitle.textContent = this.getCurrentCard().title;
-      this.$refs.carddesc.textContent = this.getCurrentCard().desc;
+      this.$refs.cardinvisible.textContent = this.getCurrentCard().invisible;
+      this.$refs.cardvisible.textContent = this.getCurrentCard().visible;
       this.shown = false;
     },
     cardClick() {
@@ -183,11 +183,19 @@ export default {
 #card-front .card-text{
   padding: 5px;
   height: 100px;
-  line-height: 50px;
   margin: 0px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 #card-front #img-container {
   height: calc(100% - 220px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Rubik Doodle Shadow', sans-serif;
+  font-size: 10px;
+  transform: rotate(40deg);
 }
 #card-front #reverse {
   height: 240px;
@@ -219,14 +227,5 @@ export default {
   margin-top: 20px;
   margin-left: calc(50% - 150px);
 }
-button:active {
-  border: 1px solid black;
-}
-button {
-  border: 1px solid rgba(0,0,0,0);
-  align-items:center;
-  justify-content:center;
-  font-size: 17px;
-  border-radius: 2px;
-}
+
 </style>

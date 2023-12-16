@@ -1,15 +1,15 @@
 <template>
   <div id="container">
-    <button className="green-btn" id="create-btn" @click="() => {this.$parent.pushEmptySet()}">Create new set</button>
+    <button className="btn green-btn" id="create-btn" @click="() => {this.$parent.pushEmptySet()}">Create new set</button>
     <div className="set-container" v-for="(set, index) in $parent.appdata.sets" v-bind:key="set.name">
       <div className="header-bar">
         <header>{{ set.name }}</header>
         <img @click="() => {editName(index)}" src="../assets/edit.svg" />
       </div>
       <div className="button-container">
-        <button className="yellow-btn">Edit cards</button>
-        <button className="red-btn" @click="() => {deleteSet(index)}">Delete</button>
-        <button className="review-btn green-btn" @click="() => {reviewSet(index)}">Review</button>
+        <button className="btn yellow-btn" @click="() => {editCards(index)}">Edit cards</button>
+        <button className="btn red-btn" @click="() => {deleteSet(index)}">Delete</button>
+        <button className="btn review-btn green-btn" @click="() => {reviewSet(index)}">Review</button>
       </div>
     </div>
   </div>
@@ -27,6 +27,10 @@ export default {
     }
   },
   methods: {
+    editCards(i) {
+      this.$parent.selectedSet = i;
+      this.$parent.action = 'edit';
+    },
     editName(i) {
       const res = prompt("Change name", this.$parent.appdata.sets[i].name);
       if(res !== null)
@@ -40,8 +44,11 @@ export default {
       this.$parent.action = 'review';
     },
     deleteSet(i) {
-      this.$parent.appdata.sets.splice(i, 1);
-      this.$parent.syncData();
+      if(window.confirm("Are you sure, that you want to delete '"+this.$parent.appdata.sets[i].name+"' set?"))
+      {
+        this.$parent.appdata.sets.splice(i, 1);
+        this.$parent.syncData();
+      }
     }
   }
 }
@@ -51,6 +58,9 @@ export default {
 #container{
   width: 300px;
   margin-left: calc(50% - 150px);
+}
+.header-bar img:hover {
+  background-color: #666;
 }
 .header-bar img {
   width: 20px;
@@ -62,6 +72,7 @@ export default {
   margin: 0px;
   display: inline-block;
   font-size: 20px;
+  font-weight: bold;
 }
 .header-bar{
   padding: 10px;
@@ -80,9 +91,6 @@ export default {
     ". ."
     "bottom bottom"; 
   display: grid;
-}
-.button-container button {
-  font-size: 17px;
 }
 .review-btn {
   grid-area: bottom;
