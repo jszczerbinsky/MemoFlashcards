@@ -1,10 +1,14 @@
 <template>
   <div id="container">
+    <div class="top-button-container">
+      <button class="btn yellow-btn" @click="() => {importCsv()}">Import from csv</button>
+      <button class="btn yellow-btn" @click="() => {exportCsv()}">Export to csv</button>
+    </div>
     <input ref="visibleinput" v-model="visible" type="textbox" placeholder="Visible side" v-on:keyup.enter="onEnterVisible" />
     <input ref="invisibleinput" v-model="invisible" type="textbox" placeholder="Invisible side"  v-on:keyup.enter="onEnterInvisible" />
     <div class="main-button-container">
       <button id="exit-btn" class="btn red-btn" @click="() => {$parent.action='menu'}">Exit</button>
-      <button id="add-btn" class="btn green-btn" @click="() => {pushNewCard()}">Add</button>
+      <button id="add-btn" class="btn green-btn" @click="() => {pushNewCard(visible, invisible)}">Add</button>
     </div>
     <div id="cardlist">
       <div v-for="(card, index) in $parent.getSelectedSet().cardlist" v-bind:key="card.name" class="card wnd" @click="() => selectedIndex = index">
@@ -37,10 +41,25 @@ export default {
     return {
       invisible: "",
       visible: "",
-      selectedIndex: 0
+      selectedIndex: 0,
     }
   },
   methods: {
+    exportCsv() {
+      let csv = '';
+      this.$parent.getSelectedSet().cardlist.forEach(x => { csv += x.visible + ';' + x.invisible + '\n'});
+
+      this.$parent.downloadTextFile(this.$parent.getSelectedSet().name + ".csv", csv);   
+    },
+    async importCsv() {
+      const csv = await this.$parent.uploadTextFile();
+      const lines = csv.split("\n");
+      
+      lines.forEach(x => {
+        const res = x.split(";", 2);
+        this.pushNewCard(res[0], res[1]);
+      });
+    },
     editVisible(i) {
       const res = prompt("Change name", this.$parent.getSelectedSet().cardlist[i].visible);
       if(res !== null)
@@ -64,11 +83,11 @@ export default {
         this.$parent.syncData();
       }
     },
-    pushNewCard() {
+    pushNewCard(v, i) {
       let card = JSON.parse(JSON.stringify(cardTemplate));
-      card.invisible = this.invisible;
-      card.visible = this.visible;
-      if(this.invisible && this.visible)
+      card.invisible = v;
+      card.visible = i;
+      if(v && i)
       {
         this.$parent.getSelectedSet().cardlist.push(card);
         this.$parent.syncData();
@@ -81,7 +100,7 @@ export default {
       this.$refs.invisibleinput.focus();
     },
     onEnterInvisible() {
-      this.pushNewCard();
+      this.pushNewCard(this.visible, this.invisible);
     }
   }
 }
@@ -129,5 +148,13 @@ input {
 }
 .bold {
   font-weight: bold;
+}
+.top-button-container {
+  margin-bottom: 20px;
+  grid-template-columns: 145px 145px;
+  grid-template-rows: 60px;
+  grid-column-gap: 5px;
+  grid-row-gap: 5px;
+  display: grid;
 }
 </style>

@@ -9,6 +9,7 @@
 import CardView from './components/CardView.vue'
 import SetList from './components/SetList.vue'
 import AddCards from './components/AddCards.vue'
+import { useFileDialog } from '@vueuse/core'
 
 const configTemplate = {
   sets: []
@@ -35,6 +36,36 @@ export default {
     }
   },
   methods: {
+    downloadTextFile(name, content) {
+      let element = document.createElement('a');
+      element.setAttribute('href', 'data:application/json;charset=utf-8,' + encodeURIComponent(content));
+      element.setAttribute('download', name);
+      element.style.display = 'none';
+      document.body.appendChild(element);
+      element.click();
+      document.body.removeChild(element);  
+    },
+    uploadTextFile(){
+      return new Promise((resolve) => {
+        const { files, open, reset, onChange } = useFileDialog({
+          accept: 'text/*',
+          directory: false
+        })
+
+        onChange((files) => {
+          if(files.length === 1) {
+            const reader = new FileReader();
+            reader.onload = (res) => {
+              resolve(res.target.result);
+            };
+            reader.onerror = (err) => console.log(err);
+            reader.readAsText(files[0]);
+          }
+        })
+
+        open();
+      });
+    },
     isHidden(card) {
       const date = new Date(card.hideUntil);
       const now = new Date(Date.now());
