@@ -4,7 +4,19 @@
       <button class="btn yellow-btn" @click="() => {importCsv()}">Import from csv</button>
       <button class="btn yellow-btn" @click="() => {exportCsv()}">Export to csv</button>
     </div>
-    <input ref="visibleinput" v-model="visible" type="textbox" placeholder="Visible side" v-on:keyup.enter="onEnterVisible" />
+    <p>Front side voice</p>
+    <select v-model="visibleVoice" @change="visibleVoiceChange($event)">
+      <option v-for="voice in $parent.voices" v-bind:key="voice.name">
+        {{ voice.name }}
+      </option>
+    </select>
+    <p>Back side voice</p>
+    <select v-model="invisibleVoice" @change="invisibleVoiceChange($event)">
+      <option v-for="voice in $parent.voices" v-bind:key="voice.name">
+        {{ voice.name }}
+      </option>
+    </select>
+    <input id="visibleinput" ref="visibleinput" v-model="visible" type="textbox" placeholder="Visible side" v-on:keyup.enter="onEnterVisible" />
     <input ref="invisibleinput" v-model="invisible" type="textbox" placeholder="Invisible side"  v-on:keyup.enter="onEnterInvisible" />
     <div class="main-button-container">
       <button id="exit-btn" class="btn red-btn" @click="() => {$parent.action='menu'}">Exit</button>
@@ -30,21 +42,33 @@ const cardTemplate = {
   correctStreak: 0,
   level: 1,
   hideUntil: new Date(0),
-  learned: false
+  learned: false,
 }
 
 export default {
   name: 'AddCards',
   mounted () {
+    this.visibleVoice = this.$parent.getSelectedSet().visibleVoice
+    this.invisibleVoice = this.$parent.getSelectedSet().invisibleVoice
   },
   data() {
     return {
       invisible: "",
       visible: "",
       selectedIndex: 0,
+      visibleVoice: "",
+      invisibleVoice: "",
     }
   },
   methods: {
+    visibleVoiceChange(e) {
+      this.$parent.getSelectedSet().visibleVoice = e.target.value;
+      this.$parent.syncData();
+    },
+    invisibleVoiceChange(e) {
+      this.$parent.getSelectedSet().invisibleVoice = e.target.value;
+      this.$parent.syncData();
+    },
     exportCsv() {
       let csv = '';
       this.$parent.getSelectedSet().cardlist.forEach(x => { csv += x.visible + ';' + x.invisible + '\n'});
@@ -85,8 +109,8 @@ export default {
     },
     pushNewCard(v, i) {
       let card = JSON.parse(JSON.stringify(cardTemplate));
-      card.invisible = v;
-      card.visible = i;
+      card.invisible = i;
+      card.visible = v;
       if(v && i)
       {
         this.$parent.getSelectedSet().cardlist.push(card);
@@ -156,5 +180,11 @@ input {
   grid-column-gap: 5px;
   grid-row-gap: 5px;
   display: grid;
+}
+#visibleinput {
+  margin-top: 20px;
+}
+select {
+  width: 300px;
 }
 </style>

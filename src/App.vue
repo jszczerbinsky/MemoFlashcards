@@ -17,7 +17,9 @@ const configTemplate = {
 
 const setTemplate = {
   name: 'Unnamed set',
-  cardlist: []
+  cardlist: [],
+  visibleVoice: "",
+  invisibleVoice: "",
 }
 
 export default {
@@ -28,11 +30,18 @@ export default {
 
     this.appdata = JSON.parse(localStorage.config);
   },
+  mounted() {
+    window.speechSynthesis.cancel();
+    setTimeout(() => {
+      this.voices = window.speechSynthesis.getVoices();
+    }, 1000)
+  },
   data() {
     return {
       action: "menu",
       selectedSet: 0,
-      appdata: JSON.parse(JSON.stringify(configTemplate))
+      appdata: JSON.parse(JSON.stringify(configTemplate)),
+      voices: []
     }
   },
   methods: {
@@ -47,7 +56,7 @@ export default {
     },
     uploadTextFile(){
       return new Promise((resolve) => {
-        const { files, open, reset, onChange } = useFileDialog({
+        const { open, onChange } = useFileDialog({
           accept: 'text/*',
           directory: false
         })

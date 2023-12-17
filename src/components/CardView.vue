@@ -30,7 +30,6 @@ export default {
   },
   data() {
     return {
-      shown: false,
       answer: null,
       currentCard: -1,
       dragging: false,
@@ -38,12 +37,24 @@ export default {
       frontText: "",
       backText: "",
       flipping: false,
-      flipped: false
+      flipped: false,
     }
   },
   methods: {
+    read(txt, voicename) {
+      var msg = new SpeechSynthesisUtterance(txt);
+      msg.rate = 0.7;
+      msg.pitch = 1;
+      msg.voice = this.$parent.voices.find(x => x.name === voicename);
+      msg.lang = this.$parent.voices.find(x => x.name === voicename).lang;
+      window.speechSynthesis.speak(msg);
+    },
     onEnter() {
       this.flipped = !this.flipped;
+      if(this.flipped)
+        this.read(this.getCurrentCard().invisible, this.$parent.getSelectedSet().invisibleVoice);
+      else
+        this.read(this.getCurrentCard().visible, this.$parent.getSelectedSet().visibleVoice);
     },
     shuffleCards(){
       this.$parent.getSelectedSet().cardlist.sort(() => Math.random() - 0.5);
@@ -74,7 +85,8 @@ export default {
       
       this.backText = this.getCurrentCard().invisible;
       this.frontText = this.getCurrentCard().visible;
-      this.shown = false;
+
+      this.read(this.getCurrentCard().visible, this.$parent.getSelectedSet().visibleVoice);
     },
     cardClick() {
       if(!this.dragging)
